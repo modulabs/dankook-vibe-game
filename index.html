@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibe Game Course Plan</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>바이브코딩 게임만들기 최종 강의안</h1>
+        <p>총 <span id="slide-count">...</span>개 슬라이드</p>
+        <ul class="slide-list" id="slide-list">
+            <li>슬라이드를 불러오는 중...</li>
+        </ul>
+    </div>
+    <script>
+        // 슬라이드 자동 탐지 및 목록 생성
+        async function loadSlideList() {
+            const slideList = document.getElementById('slide-list');
+            const slideCount = document.getElementById('slide-count');
+            const slides = [];
+
+            // 슬라이드 파일 탐지 (slide_01.html ~ slide_30.html)
+            for (let i = 1; i <= 50; i++) {
+                const slideNum = String(i).padStart(2, '0');
+                const slidePath = `slides/slide_${slideNum}.html`;
+
+                try {
+                    const response = await fetch(slidePath, { method: 'HEAD' });
+                    if (response.ok) {
+                        // 슬라이드 제목 추출
+                        const htmlResponse = await fetch(slidePath);
+                        const html = await htmlResponse.text();
+                        const titleMatch = html.match(/<title>(.*?)<\/title>/);
+                        const h1Match = html.match(/<h1[^>]*>(.*?)<\/h1>/);
+
+                        const title = titleMatch ? titleMatch[1] : `Slide ${i}`;
+                        const h1Title = h1Match ? h1Match[1].replace(/<[^>]*>/g, '') : '';
+
+                        slides.push({
+                            num: i,
+                            path: slidePath,
+                            title: title,
+                            h1: h1Title
+                        });
+                    }
+                } catch (error) {
+                    // 파일이 없으면 중단
+                    break;
+                }
+            }
+
+            // 슬라이드 서브 번호 탐지 (slide_11a.html, slide_11b.html 등)
+            for (let i = 1; i <= 30; i++) {
+                const slideNum = String(i).padStart(2, '0');
+                for (let sub of ['a', 'b', 'c', 'd', 'e']) {
+                    const slidePath = `slides/slide_${slideNum}${sub}.html`;
+
+                    try {
+                        const response = await fetch(slidePath, { method: 'HEAD' });
+                        if (response.ok) {
+                            const htmlResponse = await fetch(slidePath);
+                            const html = await htmlResponse.text();
+                            const titleMatch = html.match(/<title>(.*?)<\/title>/);
+                            const h1Match = html.match(/<h1[^>]*>(.*?)<\/h1>/);
+
+                            const title = titleMatch ? titleMatch[1] : `Slide ${i}${sub}`;
+                            const h1Title = h1Match ? h1Match[1].replace(/<[^>]*>/g, '') : '';
+
+                            slides.push({
+                                num: i + sub.charCodeAt(0) * 0.01,
+                                path: slidePath,
+                                title: title,
+                                h1: h1Title
+                            });
+                        }
+                    } catch (error) {
+                        continue;
+                    }
+                }
+            }
+
+            // 슬라이드 정렬
+            slides.sort((a, b) => a.num - b.num);
+
+            // 목록 생성
+            slideList.innerHTML = '';
+            slides.forEach((slide, index) => {
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.href = slide.path;
+                a.textContent = `Slide ${index + 1}: ${slide.h1 || slide.title}`;
+                li.appendChild(a);
+                slideList.appendChild(li);
+            });
+
+            slideCount.textContent = slides.length;
+        }
+
+        // 페이지 로드 시 슬라이드 목록 생성
+        loadSlideList();
+    </script>
+</body>
+</html>

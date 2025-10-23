@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>미지의 숲 탐험 - 스토리 기반 게임</title>
+    <style>
+        /* 🎨 전역 스타일: 기본 레이아웃 설정 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+
+        /* 📦 게임 컨테이너: 스토리와 선택지를 담는 메인 영역 */
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 90%;
+            padding: 40px;
+            text-align: center;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 📖 제목 스타일 */
+        h1 {
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 32px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 📝 스토리 텍스트 영역 */
+        #story-text {
+            font-size: 18px;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            color: #555;
+            min-height: 120px;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* 🎮 선택지 버튼 컨테이너 */
+        #choices {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* 🔘 선택지 버튼 스타일 */
+        .choice-btn {
+            padding: 15px 25px;
+            font-size: 16px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .choice-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        .choice-btn:active {
+            transform: translateY(0);
+        }
+
+        /* 🎬 시작 버튼 스타일 */
+        #start-button {
+            padding: 20px 40px;
+            font-size: 20px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        #start-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(245, 87, 108, 0.6);
+        }
+
+        /* 🏆 게임 종료 스타일 */
+        .game-end {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: bold;
+            font-size: 24px;
+        }
+
+        /* 🔄 다시 시작 버튼 */
+        #restart-button {
+            margin-top: 20px;
+            padding: 15px 30px;
+            font-size: 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #restart-button:hover {
+            background: #764ba2;
+            transform: scale(1.05);
+        }
+
+        /* 숨김 클래스 */
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🌲 미지의 숲 탐험 🌲</h1>
+
+        <!-- 📖 스토리가 표시될 영역 -->
+        <div id="story-text">
+            깊은 숲 속에서 길을 잃은 당신...<br>
+            어떤 모험이 당신을 기다리고 있을까요?
+        </div>
+
+        <!-- 🎮 선택지 버튼들이 생성될 영역 -->
+        <div id="choices"></div>
+
+        <!-- 🎬 게임 시작 버튼 -->
+        <button id="start-button">모험 시작하기</button>
+    </div>
+
+    <script>
+        // 🎮 게임 데이터: 각 장면(Scene)과 선택지(Choices) 정의
+        const gameData = [
+            {
+                id: 'start',
+                text: '깊은 숲 속에서 길을 잃었다. 해가 지고 있어 빨리 결정해야 한다. 어디로 갈까?',
+                choices: [
+                    { text: '🌙 왼쪽의 어두운 길로 간다', nextScene: 'leftPath' },
+                    { text: '☀️ 오른쪽의 밝은 길로 간다', nextScene: 'rightPath' }
+                ]
+            },
+            {
+                id: 'leftPath',
+                text: '어두운 길을 따라가니 낡은 오두막이 보인다. 문틈으로 희미한 불빛이 새어나온다.',
+                choices: [
+                    { text: '🚪 오두막 문을 두드린다', nextScene: 'knockDoor' },
+                    { text: '🏃 그냥 지나쳐 계속 간다', nextScene: 'passBy' }
+                ]
+            },
+            {
+                id: 'rightPath',
+                text: '밝은 길을 따라가니 맑은 시냇물이 흐르는 곳에 도착했다. 목이 마르다.',
+                choices: [
+                    { text: '💧 물을 마신다', nextScene: 'drinkWater' },
+                    { text: '🔍 시냇물을 따라 올라간다', nextScene: 'followStream' }
+                ]
+            },
+            {
+                id: 'knockDoor',
+                text: '문을 두드리자 친절한 할머니가 나타났다. "길을 잃었구나? 여기서 쉬었다 가렴." 할머니는 따뜻한 수프와 지도를 건넸다.',
+                choices: [
+                    { text: '🗺️ 지도를 보고 마을로 돌아간다', nextScene: 'goodEnding' }
+                ]
+            },
+            {
+                id: 'passBy',
+                text: '오두막을 지나쳐 계속 가다가 늑대 무리를 만났다! 당황한 당신은 나무 위로 올라갔고, 밤새 추위에 떨었다.',
+                choices: [
+                    { text: '🌅 아침이 되어 구조대가 도착했다', nextScene: 'normalEnding' }
+                ]
+            },
+            {
+                id: 'drinkWater',
+                text: '물을 마시는 순간, 이상한 맛이 난다. 독버섯이 녹아있는 물이었다! 몸이 마비되어 쓰러진다...',
+                choices: [
+                    { text: '😵 게임 오버', nextScene: 'badEnding' }
+                ]
+            },
+            {
+                id: 'followStream',
+                text: '시냇물을 따라 올라가니 작은 마을이 보인다. 마을 사람들이 반갑게 맞아준다.',
+                choices: [
+                    { text: '🏘️ 무사히 마을에 도착했다', nextScene: 'goodEnding' }
+                ]
+            },
+            {
+                id: 'goodEnding',
+                text: '🎉 축하합니다! 당신은 현명한 선택으로 무사히 숲을 탈출했습니다! 🎉',
+                choices: []
+            },
+            {
+                id: 'normalEnding',
+                text: '😅 구조되었지만, 힘든 밤을 보냈습니다. 다음엔 더 신중한 선택을 하세요!',
+                choices: []
+            },
+            {
+                id: 'badEnding',
+                text: '💀 불행하게도 당신의 모험은 여기서 끝났습니다... 게임 오버! 💀',
+                choices: []
+            }
+        ];
+
+        // 🎯 DOM 요소 참조
+        const storyText = document.getElementById('story-text');
+        const choicesDiv = document.getElementById('choices');
+        const startButton = document.getElementById('start-button');
+
+        // 📌 현재 게임 상태
+        let currentScene = null;
+
+        // 🎬 게임 시작 함수
+        function startGame() {
+            startButton.classList.add('hidden'); // 시작 버튼 숨김
+            loadScene('start'); // 첫 번째 씬 로드
+        }
+
+        // 📖 특정 씬(Scene)을 로드하는 함수
+        function loadScene(sceneId) {
+            // gameData 배열에서 해당 id의 씬 찾기
+            currentScene = gameData.find(scene => scene.id === sceneId);
+
+            if (!currentScene) {
+                console.error('씬을 찾을 수 없습니다:', sceneId);
+                return;
+            }
+
+            // 스토리 텍스트 업데이트
+            storyText.innerHTML = currentScene.text;
+
+            // 기존 선택지 버튼 모두 제거
+            choicesDiv.innerHTML = '';
+
+            // 새로운 선택지 버튼 생성
+            if (currentScene.choices.length === 0) {
+                // 게임 종료 (선택지가 없는 경우)
+                storyText.classList.add('game-end');
+
+                // 다시 시작 버튼 추가
+                const restartBtn = document.createElement('button');
+                restartBtn.id = 'restart-button';
+                restartBtn.textContent = '🔄 다시 시작하기';
+                restartBtn.onclick = () => {
+                    storyText.classList.remove('game-end');
+                    startGame();
+                };
+                choicesDiv.appendChild(restartBtn);
+            } else {
+                // 각 선택지마다 버튼 생성
+                currentScene.choices.forEach((choice, index) => {
+                    const button = document.createElement('button');
+                    button.className = 'choice-btn';
+                    button.textContent = choice.text;
+                    button.onclick = () => makeChoice(choice.nextScene);
+
+                    // 버튼 애니메이션 딜레이 (순차적으로 나타나는 효과)
+                    button.style.animationDelay = `${index * 0.1}s`;
+
+                    choicesDiv.appendChild(button);
+                });
+            }
+        }
+
+        // 🎯 플레이어가 선택을 하는 함수
+        function makeChoice(nextSceneId) {
+            // 선택한 씬으로 이동
+            loadScene(nextSceneId);
+        }
+
+        // 🎬 시작 버튼 이벤트 리스너
+        startButton.addEventListener('click', startGame);
+
+        // 💡 개발자를 위한 게임 데이터 구조 가이드
+        /*
+        gameData 배열의 각 객체는 다음과 같은 구조를 가집니다:
+        {
+            id: 'scene_id',              // 고유 식별자
+            text: '스토리 내용',          // 플레이어에게 보여줄 텍스트
+            choices: [                   // 선택지 배열
+                {
+                    text: '선택지 텍스트',    // 버튼에 표시될 텍스트
+                    nextScene: 'next_id'   // 이 선택 시 이동할 씬의 id
+                }
+            ]
+        }
+
+        - 게임 종료 씬은 choices 배열이 비어있어야 합니다 (choices: [])
+        - 모든 nextScene 값은 실제로 존재하는 씬의 id여야 합니다
+        - 무한 루프를 방지하려면 최종 씬(엔딩)을 반드시 정의하세요
+        */
+    </script>
+</body>
+</html>

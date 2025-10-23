@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slide 7b: AI 플랫폼 비교</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>💡 주요 AI 플랫폼 비교 (2025년)</h1>
+
+        <table style="width: 100%; border-collapse: collapse; margin-top: 2em;">
+            <thead>
+                <tr style="background-color: #e9ecef;">
+                    <th style="padding: 0.8em; text-align: left; border: 1px solid #ddd;">회사</th>
+                    <th style="padding: 0.8em; text-align: center; border: 1px solid #ddd;">무료 API</th>
+                    <th style="padding: 0.8em; text-align: center; border: 1px solid #ddd;">컨텍스트 윈도우</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="padding: 0.8em; border: 1px solid #ddd;"><strong>Google</strong><br><small>Gemini 2.5</small></td>
+                    <td style="padding: 0.8em; text-align: center; border: 1px solid #ddd;">250~500 요청/일<br><small>(AI Studio)</small></td>
+                    <td style="padding: 0.8em; text-align: center; border: 1px solid #ddd;">1M 토큰</td>
+                </tr>
+                <tr style="background-color: #f8f9fa;">
+                    <td style="padding: 0.8em; border: 1px solid #ddd;"><strong>OpenAI</strong><br><small>GPT-4o</small></td>
+                    <td style="padding: 0.8em; text-align: center; border: 1px solid #ddd;">제한적 (테스트용)<br><small>$5 크레딧</small></td>
+                    <td style="padding: 0.8em; text-align: center; border: 1px solid #ddd;">128K 토큰</td>
+                </tr>
+                <tr>
+                    <td style="padding: 0.8em; border: 1px solid #ddd;"><strong>Anthropic</strong><br><small>Claude 4</small></td>
+                    <td style="padding: 0.8em; text-align: center; border: 1px solid #ddd;">제한적 (웹 사용)<br><small>일일 한도</small></td>
+                    <td style="padding: 0.8em; text-align: center; border: 1px solid #ddd;">200K 토큰</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 style="margin-top: 3em;">⚡ CLI 도구 비교</h2>
+
+        <table style="width: 100%; border-collapse: collapse; margin-top: 1.5em;">
+            <thead>
+                <tr style="background-color: #e9ecef;">
+                    <th style="padding: 0.8em; text-align: left; border: 1px solid #ddd;">CLI 도구</th>
+                    <th style="padding: 0.8em; text-align: center; border: 1px solid #ddd;">무료 제공량</th>
+                    <th style="padding: 0.8em; text-align: center; border: 1px solid #ddd;">상태</th>
+                    <th style="padding: 0.8em; text-align: center; border: 1px solid #ddd;">설치 방법</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="padding: 0.8em; border: 1px solid #ddd;"><strong>Gemini CLI</strong></td>
+                    <td style="padding: 0.8em; text-align: center; border: 1px solid #ddd;"><strong>1,000 요청/일</strong><br><small>60 요청/분</small></td>
+                    <td style="padding: 0.8em; text-align: center; border: 1px solid #ddd;">공식 (오픈소스)</td>
+                    <td style="padding: 0.8em; border: 1px solid #ddd;"><code style="font-size: 0.8em;">npm install -g @google/gemini-cli</code></td>
+                </tr>
+                <tr style="background-color: #f8f9fa;">
+                    <td style="padding: 0.8em; border: 1px solid #ddd;"><strong>Codex CLI</strong></td>
+                    <td style="padding: 0.8em; text-align: center; border: 1px solid #ddd;">API 크레딧<br><small>(유료)</small></td>
+                    <td style="padding: 0.8em; text-align: center; border: 1px solid #ddd;">공식 (오픈소스)</td>
+                    <td style="padding: 0.8em; border: 1px solid #ddd;"><code style="font-size: 0.8em;">npm install -g @openai/codex</code><br><small>또는 <code style="font-size: 0.75em;">brew install codex</code></small></td>
+                </tr>
+                <tr>
+                    <td style="padding: 0.8em; border: 1px solid #ddd;"><strong>Claude Code</strong></td>
+                    <td style="padding: 0.8em; text-align: center; border: 1px solid #ddd;">구독 플랜<br><small>($17~200/월)</small></td>
+                    <td style="padding: 0.8em; text-align: center; border: 1px solid #ddd;">공식 (상용)</td>
+                    <td style="padding: 0.8em; border: 1px solid #ddd;"><code style="font-size: 0.8em;">npm install -g @anthropic-ai/claude-code</code><br><small>또는 <code style="font-size: 0.7em;">curl -fsSL https://claude.ai/install.sh | bash</code></small></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p style="margin-top: 1.5em; font-size: 0.9em; color: #666; background-color: #fff9e6; padding: 1em; border-radius: 5px; border-left: 4px solid #ffc107;">
+            <strong>💡 참고:</strong> Gemini CLI는 AI Studio API보다 훨씬 넉넉한 무료 제공량 제공<br>
+            (AI Studio API는 100~250 요청/일, CLI는 1,000 요청/일)
+        </p>
+
+        <p style="margin-top: 2em; font-size: 0.95em; color: #666;">
+            * 이 수업에서는 설치와 사용이 가장 간단한 <strong>Gemini CLI</strong> 사용
+        </p>
+    </div>
+    <script src="../js/script.js"></script>
+</body>
+</html>

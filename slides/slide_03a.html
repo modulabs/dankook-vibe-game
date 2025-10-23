@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slide 3a: 게임에 영상 추가하기</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>게임에 영상도 넣을 수 있습니다</h1>
+
+        <p style="font-size: 1.2em; margin-bottom: 1em;">스토리 게임에 동영상을 추가하면 더욱 생동감 있게 만들 수 있습니다.</p>
+
+        <div style="position: relative; margin: 1em auto; max-width: 650px;">
+            <!-- 동영상 -->
+            <video autoplay loop muted playsinline style="width: 100%; height: auto; border: 2px solid #ddd; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <source src="../asset/1011.mov" type="video/mp4">
+                <source src="../asset/1011.mov" type="video/quicktime">
+                브라우저가 동영상을 지원하지 않습니다.
+            </video>
+
+            <!-- 선택지 오버레이 -->
+            <div style="position: absolute; right: -80px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 1em; width: 320px;">
+                <button onclick="nextSlide()" style="padding: 1.2em; font-size: 1.1em; background: rgba(232, 244, 248, 0.3); color: #444; border: 0.5px solid rgba(184, 220, 232, 0.5); border-radius: 8px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: all 0.3s; backdrop-filter: blur(4px);" onmouseover="this.style.background='rgba(232, 244, 248, 0.9)'; this.style.borderColor='rgba(184, 220, 232, 1)'; this.style.color='#222'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)'" onmouseout="this.style.background='rgba(232, 244, 248, 0.3)'; this.style.borderColor='rgba(184, 220, 232, 0.5)'; this.style.color='#444'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.2)'">
+                    1. 계속 손짓을 하며 날아간다.
+                </button>
+                <button onclick="nextSlide()" style="padding: 1.2em; font-size: 1.1em; background: rgba(232, 244, 248, 0.3); color: #444; border: 0.5px solid rgba(184, 220, 232, 0.5); border-radius: 8px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: all 0.3s; backdrop-filter: blur(4px);" onmouseover="this.style.background='rgba(232, 244, 248, 0.9)'; this.style.borderColor='rgba(184, 220, 232, 1)'; this.style.color='#222'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)'" onmouseout="this.style.background='rgba(232, 244, 248, 0.3)'; this.style.borderColor='rgba(184, 220, 232, 0.5)'; this.style.color='#444'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.2)'">
+                    2. 게임을 더욱 고도화 시킨다.
+                </button>
+                <button onclick="nextSlide()" style="padding: 1.2em; font-size: 1.1em; background: rgba(232, 244, 248, 0.3); color: #444; border: 0.5px solid rgba(184, 220, 232, 0.5); border-radius: 8px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: all 0.3s; backdrop-filter: blur(4px);" onmouseover="this.style.background='rgba(232, 244, 248, 0.9)'; this.style.borderColor='rgba(184, 220, 232, 1)'; this.style.color='#222'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)'" onmouseout="this.style.background='rgba(232, 244, 248, 0.3)'; this.style.borderColor='rgba(184, 220, 232, 0.5)'; this.style.color='#444'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.2)'">
+                    3. 수업으로 복귀한다.
+                </button>
+            </div>
+        </div>
+
+        <p style="font-size: 1em; margin-top: 1em; text-align: center; color: #666;">영상 파일을 게임에 삽입하여 더욱 풍부한 경험을 제공할 수 있습니다.</p>
+    </div>
+    <script src="../js/script.js"></script>
+</body>
+</html>

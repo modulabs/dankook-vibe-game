@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>클릭 미 게임</title>
+    <style>
+        /* 🎨 스타일 초기화: 모든 HTML 요소의 기본 여백과 패딩을 0으로 설정 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box; /* 요소의 크기 계산 시 테두리와 패딩 포함 */
+        }
+
+        /* 📐 body 레이아웃: 화면 전체를 사용하여 중앙 정렬 */
+        body {
+            font-family: sans-serif; /* 산세리프 폰트 (깔끔한 느낌) */
+            display: flex; /* Flexbox 레이아웃 사용 */
+            flex-direction: column; /* 세로 방향 배치 */
+            align-items: center; /* 가로 중앙 정렬 */
+            justify-content: center; /* 세로 중앙 정렬 */
+            min-height: 100vh; /* 화면 전체 높이 (100% viewport height) */
+            background-color: #f0f0f0; /* 밝은 회색 배경 */
+            transition: background-color 0.3s ease; /* 배경색 변경 시 부드러운 전환 효과 */
+            overflow: hidden; /* 스크롤바 숨김 (버튼이 화면 밖으로 나가도 스크롤 안 됨) */
+        }
+
+        /* 🎯 점수 표시: 화면 상단 고정 */
+        #score {
+            position: fixed; /* 화면 스크롤과 무관하게 고정 위치 */
+            top: 20px; /* 상단에서 20픽셀 아래 */
+            font-size: 24px; /* 글자 크기 */
+            font-weight: bold; /* 굵은 글씨 */
+            color: #333; /* 어두운 회색 */
+        }
+
+        /* 🖱️ 클릭 버튼 스타일: 게임의 핵심 요소 */
+        #clickBtn {
+            position: absolute; /* 절대 위치 지정 (JavaScript로 위치 변경 가능) */
+            padding: 20px 40px; /* 버튼 내부 여백 (상하 20px, 좌우 40px) */
+            font-size: 18px;
+            font-weight: bold;
+            background-color: #007bff; /* 파란색 배경 */
+            color: white; /* 흰색 텍스트 */
+            border: none; /* 테두리 제거 */
+            border-radius: 10px; /* 둥근 모서리 (10픽셀 반경) */
+            cursor: pointer; /* 마우스 올리면 손가락 모양으로 변경 */
+            transition: transform 0.2s ease; /* 크기 변화 애니메이션 */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 그림자 효과 (입체감) */
+        }
+
+        /* 🎭 마우스 호버 효과: 버튼에 마우스를 올렸을 때 */
+        #clickBtn:hover {
+            transform: scale(1.1); /* 버튼 크기 10% 확대 */
+        }
+
+        /* 👆 클릭 효과: 버튼을 클릭하는 순간 */
+        #clickBtn:active {
+            transform: scale(0.95); /* 버튼 크기 5% 축소 (눌린 느낌) */
+        }
+    </style>
+</head>
+<body>
+    <!-- 📊 점수 표시 영역 -->
+    <div id="score">점수: 0</div>
+
+    <!-- 🎮 게임 버튼: 클릭할 때마다 위치가 바뀜 -->
+    <button id="clickBtn">날 클릭해봐!</button>
+
+    <script>
+        // 🎯 게임 변수 초기화
+        let score = 0; // 현재 점수 (버튼 클릭 횟수)
+
+        // 📌 HTML 요소 가져오기 (DOM 요소 참조)
+        const scoreDisplay = document.getElementById('score'); // 점수 표시 div
+        const clickBtn = document.getElementById('clickBtn'); // 클릭 버튼
+
+        // 🎲 게임 시작 시 버튼 위치를 랜덤하게 설정
+        moveButton();
+
+        // 🖱️ 버튼 클릭 이벤트 리스너 등록
+        clickBtn.addEventListener('click', function() {
+            // ✅ 1단계: 점수 증가
+            score++;
+            scoreDisplay.textContent = `점수: ${score}`; // 화면에 업데이트된 점수 표시
+
+            // 🎲 2단계: 버튼을 새로운 위치로 이동
+            moveButton();
+
+            // 🌈 3단계: 배경색 플래시 효과
+            flashBackground();
+        });
+
+        // 📍 함수: 버튼을 랜덤한 위치로 이동
+        function moveButton() {
+            // 📏 1. 버튼의 현재 크기 가져오기
+            const btnWidth = clickBtn.offsetWidth; // 버튼 가로 길이 (픽셀)
+            const btnHeight = clickBtn.offsetHeight; // 버튼 세로 길이 (픽셀)
+
+            // 🖥️ 2. 현재 브라우저 창 크기 가져오기
+            const maxX = window.innerWidth - btnWidth; // 버튼이 화면 밖으로 나가지 않는 최대 X 좌표
+            const maxY = window.innerHeight - btnHeight; // 버튼이 화면 밖으로 나가지 않는 최대 Y 좌표
+
+            // 🎲 3. 랜덤 위치 계산 (0 ~ 최대값 사이의 랜덤 숫자)
+            const randomX = Math.random() * maxX; // Math.random()은 0~1 사이의 랜덤 숫자
+            const randomY = Math.random() * maxY;
+
+            // 🎯 4. 계산된 위치로 버튼 이동
+            clickBtn.style.left = randomX + 'px'; // CSS left 속성 변경
+            clickBtn.style.top = randomY + 'px'; // CSS top 속성 변경
+        }
+
+        // 🌈 함수: 배경색을 잠깐 변경하는 플래시 효과
+        function flashBackground() {
+            // 🎨 1. 랜덤 색상 생성 (16진수 컬러 코드)
+            // Math.random()*16777215는 0~16777215 사이의 랜덤 숫자
+            // 16777215 = 16^6 - 1 (FFFFFF in hex)
+            const randomColor = '#' + Math.floor(Math.random()*16777215).toString(16);
+
+            // 🖌️ 2. 배경색을 랜덤 색상으로 변경
+            document.body.style.backgroundColor = randomColor;
+
+            // ⏰ 3. 0.3초 후 원래 색(밝은 회색)으로 복구
+            setTimeout(() => {
+                document.body.style.backgroundColor = '#f0f0f0';
+            }, 300); // 300밀리초 = 0.3초
+        }
+
+        // 📱 창 크기 변경 이벤트: 브라우저 창 크기가 바뀌면 버튼 위치 재조정
+        // (모바일에서 화면을 회전하거나 창을 리사이즈할 때 유용)
+        window.addEventListener('resize', moveButton);
+    </script>
+</body>
+</html>

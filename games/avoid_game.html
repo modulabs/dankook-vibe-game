@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>피하기 게임</title>
+    <style>
+        /* 🎨 스타일 초기화 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* 📐 body 레이아웃: 게임 화면 중앙 배치 */
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #2c3e50; /* 어두운 배경 (게임 분위기 연출) */
+        }
+
+        /* 🎮 게임 캔버스: 실제 게임이 그려지는 영역 */
+        #gameCanvas {
+            background-color: #000; /* 검은색 배경 */
+            border: 3px solid #fff; /* 흰색 테두리 */
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3); /* 빛나는 효과 */
+        }
+
+        /* 💀 게임 오버 화면: 초기에는 숨김 */
+        #gameOver {
+            display: none; /* 게임 오버 전까지 보이지 않음 */
+            position: absolute; /* 캔버스 위에 겹쳐서 표시 */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* 정확한 중앙 정렬 */
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.9); /* 반투명 검은 배경 */
+            color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+        }
+
+        #gameOver h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: #e74c3c; /* 빨간색 (경고 색상) */
+        }
+
+        #finalScore {
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+
+        /* 🔄 다시 시작 버튼 */
+        #restartBtn {
+            padding: 15px 30px;
+            font-size: 18px;
+            background-color: #3498db; /* 파란색 */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #restartBtn:hover {
+            background-color: #2980b9; /* 마우스 호버 시 진한 파란색 */
+        }
+    </style>
+</head>
+<body>
+    <!-- 🎨 Canvas: JavaScript로 그림을 그리는 HTML 요소 -->
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+    <!-- 💀 게임 오버 팝업 -->
+    <div id="gameOver">
+        <h2>게임 오버!</h2>
+        <p id="finalScore">최종 점수: 0점</p>
+        <button id="restartBtn">다시 시작</button>
+    </div>
+
+    <script>
+        // 🎯 Canvas 초기화: 2D 그래픽을 그리기 위한 설정
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d'); // 2D 렌더링 컨텍스트 (그림 도구)
+
+        // 📌 HTML 요소 참조
+        const gameOverDiv = document.getElementById('gameOver');
+        const finalScoreText = document.getElementById('finalScore');
+        const restartBtn = document.getElementById('restartBtn');
+
+        // 🎮 게임 상태 변수
+        let gameActive = true; // true: 게임 진행 중, false: 게임 오버
+        let score = 0; // 현재 점수 (생존 시간 기반)
+        let startTime = Date.now(); // 게임 시작 시각 (밀리초)
+
+        // 👤 플레이어 객체: 플레이어의 위치, 크기, 속도 등
+        const player = {
+            x: canvas.width / 2 - 15, // 초기 X 위치 (화면 가로 중앙)
+            y: canvas.height - 50, // 초기 Y 위치 (화면 하단)
+            width: 30, // 플레이어 가로 크기
+            height: 30, // 플레이어 세로 크기
+            speed: 5, // 이동 속도 (픽셀/프레임)
+            color: '#3498db' // 파란색
+        };
+
+        // 🚫 장애물 객체: 피해야 하는 위험 요소
+        const obstacle = {
+            x: Math.random() * (canvas.width - 40), // 초기 X 위치 (랜덤)
+            y: 0, // 초기 Y 위치 (화면 최상단)
+            width: 40,
+            height: 40,
+            speed: 3, // 하강 속도
+            color: '#e74c3c' // 빨간색 (위험 색상)
+        };
+
+        // ⌨️ 키 입력 상태 추적 객체
+        // 예: keys['ArrowLeft'] = true 이면 왼쪽 화살표 키가 눌린 상태
+        const keys = {};
+
+        // 🎹 키보드 입력 감지
+        document.addEventListener('keydown', (e) => {
+            keys[e.key] = true; // 키를 누르면 true로 설정
+        });
+
+        document.addEventListener('keyup', (e) => {
+            keys[e.key] = false; // 키를 떼면 false로 설정
+        });
+
+        // 🔄 다시 시작 버튼 클릭 이벤트
+        restartBtn.addEventListener('click', () => {
+            location.reload(); // 페이지 새로고침 (간단한 재시작 방법)
+        });
+
+        // 👤 함수: 플레이어 위치 업데이트 (키 입력에 따라 이동)
+        function updatePlayer() {
+            // ⬅️ 왼쪽 화살표: X 좌표 감소 (왼쪽 이동)
+            if (keys['ArrowLeft'] && player.x > 0) {
+                player.x -= player.speed;
+            }
+            // ➡️ 오른쪽 화살표: X 좌표 증가 (오른쪽 이동)
+            if (keys['ArrowRight'] && player.x < canvas.width - player.width) {
+                player.x += player.speed;
+            }
+            // ⬆️ 위쪽 화살표: Y 좌표 감소 (위로 이동)
+            if (keys['ArrowUp'] && player.y > 0) {
+                player.y -= player.speed;
+            }
+            // ⬇️ 아래쪽 화살표: Y 좌표 증가 (아래로 이동)
+            if (keys['ArrowDown'] && player.y < canvas.height - player.height) {
+                player.y += player.speed;
+            }
+        }
+
+        // 🚫 함수: 장애물 위치 업데이트 (위에서 아래로 떨어짐)
+        function updateObstacle() {
+            // 📉 장애물을 아래로 이동 (Y 좌표 증가)
+            obstacle.y += obstacle.speed;
+
+            // 🔄 화면 하단에 도달하면 새로운 장애물 생성
+            if (obstacle.y > canvas.height) {
+                obstacle.y = 0; // Y 위치 초기화 (최상단)
+                obstacle.x = Math.random() * (canvas.width - obstacle.width); // X 위치 랜덤
+
+                // 📈 점진적 난이도 증가: 시간이 지날수록 장애물이 빨라짐
+                if (obstacle.speed < 8) {
+                    obstacle.speed += 0.1; // 속도 증가 (최대 8까지)
+                }
+            }
+        }
+
+        // 💥 함수: 충돌 감지 (사각형 충돌 알고리즘)
+        // 두 사각형이 겹치면 true 반환
+        function checkCollision() {
+            return player.x < obstacle.x + obstacle.width && // 플레이어 왼쪽이 장애물 오른쪽보다 왼쪽에 있고
+                   player.x + player.width > obstacle.x && // 플레이어 오른쪽이 장애물 왼쪽보다 오른쪽에 있고
+                   player.y < obstacle.y + obstacle.height && // 플레이어 위쪽이 장애물 아래쪽보다 위에 있고
+                   player.y + player.height > obstacle.y; // 플레이어 아래쪽이 장애물 위쪽보다 아래에 있으면 충돌!
+        }
+
+        // 🎯 함수: 점수 계산 (생존 시간 기반)
+        function updateScore() {
+            // 현재 시간 - 시작 시간 = 생존 시간 (밀리초)
+            // 1000으로 나누면 초 단위로 변환
+            score = Math.floor((Date.now() - startTime) / 1000);
+        }
+
+        // 🎨 함수: 게임 화면 그리기
+        function draw() {
+            // 🖌️ 1. 캔버스 초기화 (이전 프레임 지우기)
+            ctx.fillStyle = '#000'; // 검은색
+            ctx.fillRect(0, 0, canvas.width, canvas.height); // 전체 캔버스 채우기
+
+            // 👤 2. 플레이어 그리기 (파란 사각형)
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+
+            // 🚫 3. 장애물 그리기 (빨간 사각형)
+            ctx.fillStyle = obstacle.color;
+            ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+
+            // 📊 4. 점수 표시 (좌측 상단)
+            ctx.fillStyle = '#fff'; // 흰색
+            ctx.font = '24px sans-serif'; // 폰트 설정
+            ctx.fillText(`점수: ${score}`, 20, 40); // 텍스트 그리기
+        }
+
+        // 💀 함수: 게임 오버 처리
+        function endGame() {
+            gameActive = false; // 게임 루프 중단
+            finalScoreText.textContent = `최종 점수: ${score}점`; // 최종 점수 표시
+            gameOverDiv.style.display = 'block'; // 게임 오버 팝업 표시
+        }
+
+        // 🔁 게임 루프: 매 프레임마다 실행되는 핵심 함수
+        function gameLoop() {
+            // 🛑 게임이 종료되었으면 루프 중단
+            if (!gameActive) return;
+
+            // 🔄 게임 로직 업데이트
+            updatePlayer(); // 플레이어 이동
+            updateObstacle(); // 장애물 이동
+            updateScore(); // 점수 계산
+
+            // 💥 충돌 검사
+            if (checkCollision()) {
+                endGame(); // 충돌 시 게임 오버
+                return; // 루프 종료
+            }
+
+            // 🎨 화면 그리기
+            draw();
+
+            // ➡️ 다음 프레임 요청 (약 60fps로 자동 실행)
+            // requestAnimationFrame은 브라우저에게 "다음 프레임에 이 함수 다시 실행해줘"라고 요청
+            requestAnimationFrame(gameLoop);
+        }
+
+        // 🚀 게임 시작! (게임 루프 최초 실행)
+        gameLoop();
+    </script>
+</body>
+</html>
