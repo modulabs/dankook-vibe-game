@@ -15,74 +15,65 @@
         </ul>
     </div>
     <script>
-        // 슬라이드 자동 탐지 및 목록 생성
+        // 슬라이드 자동 탐지 및 목록 생성 (병렬 처리 최적화)
         async function loadSlideList() {
             const slideList = document.getElementById('slide-list');
             const slideCount = document.getElementById('slide-count');
-            const slides = [];
 
-            // 슬라이드 파일 탐지 (slide_01.html ~ slide_30.html)
+            // 1단계: 병렬로 기본 슬라이드 존재 확인 (HEAD 요청만)
+            const checkPromises = [];
             for (let i = 1; i <= 50; i++) {
                 const slideNum = String(i).padStart(2, '0');
                 const slidePath = `slides/slide_${slideNum}.html`;
 
-                try {
-                    const response = await fetch(slidePath, { method: 'HEAD' });
-                    if (response.ok) {
-                        // 슬라이드 제목 추출
-                        const htmlResponse = await fetch(slidePath);
-                        const html = await htmlResponse.text();
-                        const titleMatch = html.match(/<title>(.*?)<\/title>/);
-                        const h1Match = html.match(/<h1[^>]*>(.*?)<\/h1>/);
-
-                        const title = titleMatch ? titleMatch[1] : `Slide ${i}`;
-                        const h1Title = h1Match ? h1Match[1].replace(/<[^>]*>/g, '') : '';
-
-                        slides.push({
-                            num: i,
-                            path: slidePath,
-                            title: title,
-                            h1: h1Title
-                        });
-                    }
-                } catch (error) {
-                    // 파일이 없으면 중단
-                    break;
-                }
+                checkPromises.push(
+                    fetch(slidePath, { method: 'HEAD' })
+                        .then(response => response.ok ? { num: i, path: slidePath, sub: '' } : null)
+                        .catch(() => null)
+                );
             }
 
-            // 슬라이드 서브 번호 탐지 (slide_11a.html, slide_11b.html 등)
+            // 서브 슬라이드도 병렬로 확인
             for (let i = 1; i <= 30; i++) {
                 const slideNum = String(i).padStart(2, '0');
-                for (let sub of ['a', 'b', 'c', 'd', 'e']) {
+                for (let sub of ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']) {
                     const slidePath = `slides/slide_${slideNum}${sub}.html`;
 
-                    try {
-                        const response = await fetch(slidePath, { method: 'HEAD' });
-                        if (response.ok) {
-                            const htmlResponse = await fetch(slidePath);
-                            const html = await htmlResponse.text();
-                            const titleMatch = html.match(/<title>(.*?)<\/title>/);
-                            const h1Match = html.match(/<h1[^>]*>(.*?)<\/h1>/);
-
-                            const title = titleMatch ? titleMatch[1] : `Slide ${i}${sub}`;
-                            const h1Title = h1Match ? h1Match[1].replace(/<[^>]*>/g, '') : '';
-
-                            slides.push({
+                    checkPromises.push(
+                        fetch(slidePath, { method: 'HEAD' })
+                            .then(response => response.ok ? {
                                 num: i + sub.charCodeAt(0) * 0.01,
                                 path: slidePath,
-                                title: title,
-                                h1: h1Title
-                            });
-                        }
-                    } catch (error) {
-                        continue;
-                    }
+                                sub: sub
+                            } : null)
+                            .catch(() => null)
+                    );
                 }
             }
 
-            // 슬라이드 정렬
-            slides.sort((a, b) => a.num - b.num);
+            // 모든 확인 완료 대기
+            const results = await Promise.all(checkPromises);
+            const validSlides = results.filter(r => r !== null);
+
+            // 번호순으로 정렬
+            validSlides.sort((a, b) => a.num - b.num);
+
+            // 2단계: 제목 추출 (병렬 처리)
+            const titlePromises = validSlides.map(slide =>
+                fetch(slide.path)
+                    .then(r => r.text())
+                    .then(html => {
+                        const titleMatch = html.match(/<title>(.*?)<\/title>/);
+                        const h1Match = html.match(/<h1[^>]*>(.*?)<\/h1>/s);
+                        return {
+                            ...slide,
+                            title: titleMatch ? titleMatch[1] : 'Untitled',
+                            h1: h1Match ? h1Match[1].replace(/<[^>]*>/g, '').trim() : ''
+                        };
+                    })
+            );
+
+            const slides = await Promise.all(titlePromises);
 
             // 목록 생성
             slideList.innerHTML = '';
