@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slide 8a: nvm 설치 문제 해결</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        details {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 1em;
+            padding: 1em;
+        }
+        summary {
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1.2em;
+        }
+        .code-block {
+            background-color: #e9ecef;
+            padding: 1em;
+            border-radius: 5px;
+            margin-top: 1em;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>nvm 설치 문제 해결 가이드</h1>
+
+        <div style="background-color: #fff9e6; padding: 1.5em; border-radius: 5px; border-left: 4px solid #ffc107; margin-bottom: 1.5em;">
+            <h3 style="margin-top: 0;">🚨 `nvm: command not found` 오류가 발생하나요?</h3>
+            <p style="font-size: 1.05em; line-height: 1.6;">
+                가장 먼저, <strong>모든 터미널(PowerShell, cmd, Terminal 등)을 완전히 닫고 새로 열어서</strong> 명령어를 다시 입력해보세요. 대부분의 설치 문제는 터미널 재시작으로 해결됩니다.
+            </p>
+        </div>
+
+        <details>
+            <summary>🖥️ Windows 사용자 문제 해결</summary>
+            <div>
+                <h4>문제 1: 스크립트 실행 권한 오류</h4>
+                <p>PowerShell에서 nvm 사용 시 빨간색 오류 메시지가 나타난다면, 실행 정책 문제일 수 있습니다.</p>
+                <p><strong>해결 방법:</strong></p>
+                <ol>
+                    <li>PowerShell을 <strong>관리자 권한</strong>으로 엽니다.</li>
+                    <li>아래 명령어를 입력하고 Enter를 누릅니다.</li>
+                </ol>
+                <div class="code-block">
+                    <code>Set-ExecutionPolicy RemoteSigned -Scope CurrentUser</code>
+                </div>
+                <p style="margin-top: 1em;"><code>[Y] 예</code>를 선택하여 정책을 변경합니다. 이제 터미널을 다시 시작하고 <code>nvm --version</code>을 실행해보세요.</p>
+            </div>
+            <hr style="margin: 1.5em 0;">
+            <div>
+                <h4>문제 2: `nvm` 명령어를 찾을 수 없음</h4>
+                <p>터미널을 재시작해도 문제가 해결되지 않는다면, 환경 변수 설정이 누락되었을 수 있습니다.</p>
+                <p><strong>해결 방법:</strong></p>
+                <p>nvm-windows를 재설치 해보세요. 설치 과정에서 시스템 환경 변수를 자동으로 설정해줍니다. 설치 경로에 한글이나 공백이 포함되지 않도록 주의하세요. (예: <code>C:\nvm</code>)</p>
+            </div>
+        </details>
+
+        <details>
+            <summary>🍏 Mac/Linux 사용자 문제 해결</summary>
+            <div>
+                <h4>문제: `nvm` 명령어를 찾을 수 없음</h4>
+                <p>설치 스크립트 실행 마지막에 나타나는 환경변수 설정 안내를 놓친 경우가 많습니다.</p>
+                <p><strong>해결 방법:</strong></p>
+                <p>사용하는 셸의 설정 파일(<code>~/.zshrc</code>, <code>~/.bash_profile</code> 등)을 열고, 파일 맨 아래에 다음 내용을 추가하세요.</p>
+                <div class="code-block">
+                    <code>export NVM_DIR="$HOME/.nvm"<br>
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm<br>
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion</code>
+                </div>
+                <p style="margin-top: 1em;">파일을 저장한 뒤, 터미널에 <code>source ~/.zshrc</code> (또는 사용하는 셸 파일명)를 입력하거나 터미널을 재시작하세요.</p>
+            </div>
+        </details>
+
+        <p style="margin-top: 2em; font-size: 1em; color: #666; text-align: center;">
+            위 방법으로도 해결되지 않으면 디스코드 채널에 질문을 남겨주세요!
+        </p>
+    </div>
+    <script src="../js/script.js"></script>
+</body>
+</html>
